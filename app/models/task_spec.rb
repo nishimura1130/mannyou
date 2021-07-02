@@ -10,6 +10,14 @@ describe 'タスクモデル機能', type: :model do
 　　context 'タスクの詳細が空の場合' do
       it 'バリデーションにひっかかる' do
         # ここに内容を記載する
+        task = Task.new(
+          first_title: nil,
+          last_title: "testman",
+          email: "testman@example.com",
+          password: "password",
+        )
+        task.valid?
+        expect(task.errors[:first_name]).to include("can't be blank") 
       end
     end
     context 'タスクのタイトルと詳細に内容が記載されている場合' do
