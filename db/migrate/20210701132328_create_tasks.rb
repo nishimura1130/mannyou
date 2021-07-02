@@ -1,6 +1,6 @@
-class CreateBlogs < ActiveRecord::Migration[5.2]
+class CreateTasks < ActiveRecord::Migration[5.2]
   def change
-    create_table :blogs do |t|
+    create_table :tasks do |t|
       t.string :title
       t.text :content
 
