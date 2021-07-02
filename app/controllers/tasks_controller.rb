@@ -30,7 +30,7 @@ class TasksController < ApplicationController
   def update
     @task = Task.find(params[:id])   # 重複！
     if @task.update(task_params)
-      redirect_to tasks_path, notice: "ブログを編集しました！"
+      redirect_to tasks_path, notice: "タスクを編集しました！"
     else
       render :edit
     end
@@ -38,7 +38,7 @@ class TasksController < ApplicationController
   def destroy
     @task = Task.find(params[:id])  
     @task.destroy
-    redirect_to tasks_path, notice:"ブログを削除しました！"
+    redirect_to tasks_path, notice:"タスクを削除しました！"
   end
   private
   def task_params
