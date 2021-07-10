@@ -44,13 +44,13 @@ RSpec.describe 'タスク管理機能', type: :system do
   end
 
   describe 'タスク詳細画面' do
-     let(:showtask){ FactoryBot.create(:task, title: 'showtest') }
+    let(:showtask){ FactoryBot.create(:task, title: 'showtest') }
 
-     context '任意のタスク詳細画面に遷移した場合' do
-       it '該当タスクの内容が表示されたページに遷移すること' do
-         visit task_path(showtask)
-         expect(page).to have_content 'showtest'
-       end
-     end
+    context '任意のタスク詳細画面に遷移した場合' do
+      it '該当タスクの内容が表示されたページに遷移すること' do
+        visit task_path(showtask)
+        expect(page).to have_content 'showtest'
+      end
+    end
   end
 end
