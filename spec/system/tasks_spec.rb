@@ -36,7 +36,7 @@ RSpec.describe 'タスク管理機能', type: :system do
         choose 'task_priority_high'
         # タスク作成ボタンをクリック
         # binding.pry
-        click_on 'Create Task'
+        click_on '登録する'
         # タスクが作成されたか検証する
         expect(page).to have_content 'タスクを作成しました'
       end
