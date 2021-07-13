@@ -120,6 +120,13 @@ end
 
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-# slimを導入
+
 gem 'slim-rails'
 gem 'html2slim'
+
+gem 'enum_help'
+
+gem 'kaminari'
+
+gem 'dotenv-rails'
+
