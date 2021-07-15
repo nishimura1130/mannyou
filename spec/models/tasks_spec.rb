@@ -1,59 +1,85 @@
-# require 'rails_helper'
-
-# RSpec.describe Task, type: :model do
-#   # pending "add some examples to (or delete) #{__FILE__}"
-
-
-# # ここから書き始め。
-
-# # require 'rails_helper'
-# describe 'タスクモデル機能', type: :model do
-#   describe 'バリデーションのテスト' do
-#     context 'タスクのタイトルが空の場合' do
-#       it 'バリデーションにひっかる' do
-#         task = Task.new(title: '', content: '失敗テスト')
-#         expect(task).not_to be_valid
-#       end
-#     end
-
-#       context 'タスクの詳細が空の場合' do
-#       it 'バリデーションにひっかかる' do
-#         # ここに内容を記載する
-#         task = Task.new( title: "テスト",content: "")
-#         expect(task).not_to be_valid
-#       end
-#     end
-#     # context 'タスクのタイトルと詳細に内容が記載されている場合' do
-#     #   it 'バリデーションが通る' do
-#     #     ここに内容を記載する。
-#     #     task = Task.new(
-#     #       content: nil,
-#     #       content: "testman",
-#     #     )
-#     #     expect(task.errors[:title]).to include("can't be blank")
-#     #     end
-#     #   end
-#     end 
-#   end
-# end
-
-
 require 'rails_helper'
 
-RSpec.describe 'タスク管理機能', type: :model do
-
-  it 'titleが空ならバリデーションが通らない' do
-    task = FactoryBot.build(:task, title: '')
-    expect(task).not_to be_valid
+RSpec.describe Task, type: :model do
+  describe "validation" do
+    it 'nameが空ならバリデーションが通らない' do
+      task = Task.new(name: '', detail: 'aaaa')
+      expect(task).not_to be_valid
+    end
+    it 'detailが空ならバリデーションが通らない' do
+      # ここに内容を記載する
+      task = Task.new(detail: '', name: 'aaaa')
+      expect(task).not_to be_valid
+    end
+    it 'nameとdetailに内容が記載されていればバリデーションが通る' do
+      # ここに内容を記載する
+      task = Task.new(
+        name: 'hoge',
+        detail: 'hogehoge'
+      )
+      expect(task).to be_valid
+    end
+  
+    # it 'progressとpriorityに内容が記載されていればバリデーションが通る' do
+    #   # ここに内容を記載する
+    #   task = Task.new(
+    #     progress: 無関係, 
+    #     priority: 無関係
+    #   )
+    #   expect(task).not_to be_valid
+    #   # expect(task).to be_valid
+    # end
   end
 
-  it 'contentが空ならバリデーションが通らない' do
-    task = FactoryBot.build(:task, content: '')
-    expect(task).not_to be_valid
-  end
+  # describe ".admins" do
+  #   it "includes users with admin flag" do
+  #     admin = User.create!(admin: true)
+  #     expect(User.admins).to include(admin)
+  #   end
 
-  it 'titleとcontentに内容が記載されていればバリデーションが通る' do
-    task = FactoryBot.build(:task, title: '成功テスト', content: '成功テスト')
-    expect(task).to be_valid
+  #   it "excludes users without admin flag" do
+  #     non_admin = User.create(admin: false)
+  #     expect(User.admins).not_to include(non_admin)
+  #   end
+
+
+  describe "scope" do
+    it 'to include task_name, aaaaa' do
+      task_name = Task.create(name: "aaaaa", detail: "bbbbb", progress: "完了")
+      expect(Task.search_name("aa")).to include Task.find_by(name: "aaaaa") 
+    end 
+      
+    it 'to include task_progress, 完了' do
+      task_progress = Task.create(name: "aaaaa", detail: "bbbbb", progress: "完了")
+      expect(Task.search_progress("完了")).to include Task.find_by(progress: "完了")
+    end
+
   end
+  # it 'nameが空ならバリデーションが通らない' do
+  #   task = Task.new(name: '', detail: 'aaaa')
+  #   expect(task).not_to be_valid
+  # end
+  # it 'detailが空ならバリデーションが通らない' do
+  #   # ここに内容を記載する
+  #   task = Task.new(detail: '', name: 'aaaa')
+  #   expect(task).not_to be_valid
+  # end
+  # it 'nameとdetailに内容が記載されていればバリデーションが通る' do
+  #   # ここに内容を記載する
+  #   task = Task.new(
+  #     name: 'hoge',
+  #     detail: 'hogehoge'
+  #   )
+  #   expect(task).to be_valid
+  # end
+
+  # it 'progressとpriorityに内容が記載されていればバリデーションが通る' do
+  #   # ここに内容を記載する
+  #   task = Task.new(
+  #     progress: 無関係, 
+  #     priority: 無関係
+  #   )
+  #   expect(task).not_to be_valid
+  #   # expect(task).to be_valid
+  # end
 end
