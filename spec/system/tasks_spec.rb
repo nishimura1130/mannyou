@@ -1,124 +1,119 @@
 require 'rails_helper'
 RSpec.describe 'タスク管理機能', type: :system do
   before do
-    # 「タスク一覧画面」や「タスク詳細画面」などそれぞれのテストケースで、before内のコードが実行される
-    # 各テストで使用するタスクを1件作成する
-    # 作成したタスクオブジェクトを各テストケースで呼び出せるようにインスタンス変数に代入
-    @task = FactoryBot.create(:task, name: 'task', progress: '完了')
-    FactoryBot.create(:task, name: '付け加えた名前１')
-    FactoryBot.create(:task, name: '付け加えた名前２')
-    FactoryBot.create(:second_task, name: '付け加えた名前３', detail: '付け加えたコンテント')
+    @user = FactoryBot.create(:user)
+    @admin_user = FactoryBot.create(:admin_user)
+    @task1 = FactoryBot.create(:task, title: 'task1', user: @admin_user)
+    @task2 = FactoryBot.create(:second_task, title: 'task2', user: @admin_user)
+    visit new_session_path
+    fill_in 'Email',with: 'admin@admin.com'
+    fill_in 'Password',with: '00000000'
+    click_button 'ログイン'
   end
 
-  describe 'タスク一覧画面' do
-    context 'タスクを作成した場合' do
-      it '作成済みのタスクが表示されること' do
-        # beforeに必要なタスクデータが作成されるので、ここでテストデータ作成処理を書く必要がない
-        visit tasks_path
-        expect(page).to have_content 'task'
-      end
-    end
-
-    context '複数のタスクを作成した場合' do
-      it 'タスクが作成日時の降順に並んでいること' do
-        new_task = FactoryBot.create(:task, name: 'new_task')
-        visit tasks_path
-        # save_and_open_page
-        task_list = all('.task_row') # タスク一覧を配列として取得するため、View側でidを振っておく
-        expect(task_list[0]).to have_content 'new_task'
-        expect(task_list[1]).to have_content '付け加えた名前３'
-      end
+  describe '検索機能'do
+    context 'タイトルをあいまい検索した場合'do
+      it '入力値を含むタスクが表示される'do
+      visit tasks_path
+      fill_in 'タイトル検索',with: 'task1'
+      click_button 'Search'
+      sleep 0.5
+      expect(page).to have_content 'task1'
+      # expect( Task.count ).to eq 2
     end
   end
+context 'ステータスを検索した場合'do
+it '選択したステータスを含むタスクが表示される'do
+visit tasks_path
+select '未着手',from: 'ステータス検索'
+click_button 'Search'
+expect(page).to have_content '未着手'
+end
+end
+context 'タイトルをあいまい検索し,かつステータスを検索した場合'do
+it '入力値を含むタスクが表示され、かつ選択したステータスを含むタスクが表示される'do
+visit tasks_path
+fill_in 'タイトル検索',with: 'task1'
+select '未着手',from: 'ステータス検索'
+click_button 'Search'
+expect(page).to have_content 'task1'
+expect(page).to have_content '未着手'
+end
+end
+end
+describe '新規作成機能' do
+  context 'タスクを新規作成した場合' do
+    it '作成したタスクが表示される' do
+      visit new_task_path
 
-  describe 'タスク登録画面' do
-    context '必要項目を入力して、createボタンを押した場合' do
-      it 'データが保存されること' do
-        visit new_task_path
-
-        fill_in "task_name", with: "abcdef"
-        fill_in "task_detail", with: "ghijkl"
-        click_on "Create Task"
-
-        expect(page).to have_content "abcdef"
-      end
+      fill_in 'Title',with: 'task1'
+      select '未着手',from: 'ステータス'
+      select '低',from: '優先順位'
+      click_button 'Create Task'
+      expect(page).to have_content 'task1'
+      expect(page).to have_content '2020'
+      expect(page).to have_content '11'
+      expect(page).to have_content '12'
+      expect(page).to have_content '未着手'
+      expect(page).to have_content '低'
+      # expect(page).to have_content 'task_failure'
     end
   end
+  context 'タスクが作成日時の降順に並んでいる場合' do
+    it '新しいタスクが一番上に表示される' do
+      # ここに実装する
+      visit tasks_path
 
-  describe 'タスク詳細画面' do
-     context '任意のタスク詳細画面に遷移した場合' do
-      task = FactoryBot.create(:task, name: 'wwwww')
-       it '該当タスクの内容が表示されたページに遷移すること' do
-         visit task_path(task)
-         save_and_open_page
-         expect(page).to have_content "wwwww"
-       end
-     end
-  end
-
-  describe 'タスク一覧' do
-    context '最終期限ボタンを押したら' do
-      before do
-        # 1 全てのタスクを取得してdeadlineを一日置きになる様に設定する
-        all_tasks = Task.all
-        all_tasks.each_with_index do |task, i|
-          task.deadline = Date.today + i
-          task.save
-        end
-      end
-      it '期日が迫っている日から見せまた、progressが登録されている' do
-        visit tasks_path
-        # 2 ボタンを押す
-        click_on "終了期限でソートする"
-        # 3 評価する
-        sleep 3
-        save_and_open_page
-
-        # expect(page).to have_content 0
-      end
+      task_list = all('tbody tr')
+      expect(task_list[0]).to have_content 'task2'
+      expect(task_list[1]).to have_content 'task1'
     end
   end
+end
+describe '一覧表示機能' do
+  context '一覧画面に遷移した場合' do
+    it '作成済みのタスク一覧が表示される' do
+      # task = FactoryBot.create(:task, title: 'task')
 
-  describe 'タスク一覧' do
-    context '進捗Progress検索で、完了、を指定後、検索を押したら' do
-    it '完了タスクだけ表示' do
-        visit tasks_path
-        all_tasks = Task.all
-        find("option[value='2']").select_option     
+      visit tasks_path
 
-        click_on "検索"
-
-        # sleep 3
-        # binding.irb
-        expect(find("tbody").text).to have_content "完了"
-        expect(find("tbody").text).not_to have_content "着手中"
-        expect(find("tbody").text).not_to have_content "未着手"
-
-       
-
-        save_and_open_page
-      end
+      expect(page).to have_content 'task1'
     end
   end
+  context 'タスク終了期限でソートした場合' do
+    it '終了期限降順で表示される' do
+      # ここに実装する
+      visit tasks_path
 
-  describe 'タスク一覧' do
-    context 'タスク名Name検索で、付け加えた名前１、を指定後、検索を押したら' do
-    it 'タスク名、付け加えた名前１、だけを表示' do
-        visit tasks_path
-        all_tasks = Task.all
-        # input[value] = "付け加えた名前１"
-        # <input type="submit"> = "付け加えた名前１"
-        
-        fill_in "task_name", with: "付け加えた名前１"
-        click_on "検索"
-        
-        sleep 3
-        save_and_open_page
-
-        expect(find("tbody").text).to have_content "付け加えた名前１"
-
-      end
+      click_on '終了期限でソートする'
+      sleep 0.5
+      task_list = all('tbody tr')
+      expect(task_list[0]).to have_content '2020-12-22'
+      expect(task_list[1]).to have_content '2020-11-12'
     end
   end
+  context '優先順位が高い順でソートした場合' do
+    it '優先順位降順で表示される' do
+      # ここに実装する
+      visit tasks_path
 
+      click_on '優先順位が高い順にソートする'
+      sleep 0.5
+      task_list = all('tbody tr')
+      expect(task_list[0]).to have_content '高'
+      expect(task_list[1]).to have_content '低'
+    end
+  end
+end
+describe '詳細表示機能' do
+  context '任意のタスク詳細画面に遷移した場合' do
+    it '該当タスクの内容が表示される' do
+      # @task = FactoryBot.create(:task, title: 'task')
+
+      visit task_path(@task1)
+
+      expect(page).to have_content 'task1'
+    end
+  end
+end
 end

@@ -1,24 +1,8 @@
-<p id="notice"><%= notice %></p>
 
-<p>
-  <strong>　<%= t('Task.name') %>:</strong>
-  <%= @task.name %>
-</p>
+<h1>タスク詳細画面</h1>
+<p>タイトル: <%= @task.title %></p>
+<p>期限: <%= @task.task_limit_on %></p>
+<p>ステイタス: <%= @task.task_status %></p>
+<p>優先順位: <%= @task.priority %></p>
 
-<p>
-  <strong>　<%= t('Task.detail') %>:</strong>
-  <%= @task.detail %>
-</p>
-
-<p>
-  <strong>　<%= t('Task.deadline') %>:</strong>
-  <%= @task.deadline %>
-</p>
-
-<p>
-  <strong>　<%= t('Task.progress') %>:</strong>
-  <%= @task.progress %>
-</p>
-
-<%= link_to 'Edit', edit_task_path(@task) %> |
-<%= link_to 'Back', tasks_path %>
+<%= link_to 'タスク一覧画面に戻る', tasks_path, class: "btn btn-primary btn-lg" %>

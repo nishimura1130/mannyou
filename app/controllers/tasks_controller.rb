@@ -1,85 +1,72 @@
 class TasksController < ApplicationController
   before_action :set_task, only: [:show, :edit, :update, :destroy]
 
-  # GET /tasks
   def index
-    @tasks = Task.all.order(created_at: :desc)
-    if params[:sort_expired] == "true"  
-      @tasks = Task.all.order(deadline: :ASC)
-
-    elsif params[:sort_priority] == "true"
-     @tasks = Task.all.order(priority: :DESC)
-
-    elsif params[:task]
-      name = params[:task][:name]
-      progress = params[:task][:progress]
-      @tasks = Task.search_name(name).search_progress(progress)
+    if params[:title].present? && params[:task_status].present?
+      @tasks = current_user.tasks.get_by_title(params[:title]).get_by_task_status(params[:task_status]).page(params[:page]).per(5)
+    elsif params[:title].present?
+      @tasks = current_user.tasks.get_by_title(params[:title]).page(params[:page]).per(5)
+    elsif params[:task_status].present?
+      @tasks = current_user.tasks.get_by_task_status(params[:task_status]).page(params[:page]).per(5)
+    elsif params[:sort_expired]
+      @tasks = current_user.tasks.order(task_limit_on: "DESC").page(params[:page]).per(5)
+    elsif params[:sort_priority]
+      @tasks = current_user.tasks.order(priority:"DESC").page(params[:page]).per(5)
     else
-      @tasks = Task.all.order(created_at: :desc)
+      @tasks = current_user.tasks.order(id: "DESC").page(params[:page]).per(5)
     end
-    @tasks = @tasks.page(params[:page]).per(5)# = Task.new.page(params[:page]).per(10)
-
-
-    # if params[:task].present?
-    #   if params[:task][:name].present? && params[:task][:progress].present?
-    #     @tasks = Task.search_task(@task_name)
-    #   elsif params[:task][:name].present? 
-    #     @tasks = Task.search_name()
-    #   elsif params[:task][:progress].present? 
-    #     @tasks = Task.search_progress()
-    #   else
-    #   @tasks = Task.all.order(created_at: :desc)
-    #   end 
-    # end
   end
 
-  # GET /tasks/1
-  def show
-  end
-
-  # GET /tasks/new
   def new
     @task = Task.new
   end
 
-  # GET /tasks/1/edit
-  def edit
-  end
-
-  # POST /tasks
   def create
-    @task = Task.new(task_params)
+    @task = current_user.tasks.build(task_params)
 
     if @task.save
-      redirect_to @task, notice: 'Task was successfully created.'
+      # 一覧画面へ遷移して"ブログを作成しました！"とメッセージを表示します。
+      redirect_to tasks_path, notice: "タスクを作成しました！"
     else
+      # 入力フォームを再描画します。
       render :new
+      # end
     end
   end
 
-  # PATCH/PUT /tasks/1
+  def show
+    @task = current_user.tasks.find(params[:id])
+  end
+
+  def edit
+    @task = current_user.tasks.find(params[:id])
+  end
+
   def update
+    @task = current_user.tasks.find(params[:id])
     if @task.update(task_params)
-      redirect_to @task, notice: 'Task was successfully updated.'
+      redirect_to tasks_path, notice: "タスクを編集しました！"
     else
       render :edit
     end
   end
 
-  # DELETE /tasks/1
   def destroy
     @task.destroy
-    redirect_to tasks_url, notice: 'Task was successfully destroyed.'
+    redirect_to tasks_path, notice:"タスクを削除しました！"
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_task
-      @task = Task.find(params[:id])
-    end
+  # def confirm
+  #   @task = Task.new(task_params)
+  #   render :new if @task.invalid?
+  # end
 
-    # Only allow a trusted parameter "white list" through.
-    def task_params
-      params.require(:task).permit(:name, :detail, :deadline, :progress, :priority)
-    end
+  private
+  def task_params
+    params.require(:task).permit(:title, :task_limit_on, :task_status, :priority)
+  end
+
+  def set_task
+    @task = current_user.tasks.find(params[:id])
+  end
 end

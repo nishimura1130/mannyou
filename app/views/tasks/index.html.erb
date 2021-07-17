@@ -1,57 +1,41 @@
-<p id="notice"><%= notice %></p>
+<h1>タスク一覧</h1>
 
-<h1><%= t('Task.title') %> </h1>
-
-<%= link_to 'New Task', new_task_path %>
-<br>
-<%= form_with(model: @tasks, url: tasks_path, method: :get, local: true) do |form| %>
-  <div class="field">
-    <%= form.label t("activerecord.attributes.task.name") %>
-    <%= form.text_field :name, value: "" %>
-  </div>
-  <div class="task_title">
-    <%= form.label t("activerecord.attributes.task.progress") %>
-    <%= form.select :progress, [["未着手", 0 ], ["着手中", 1 ], ["完了", 2 ]] ,{include_blank: true}%>
-  </div>
-   <%= form.submit "検索" %>
-<% end %>
-
-<br>
-
-<table>
+<div>
+  <%= form_with(url:tasks_path,local: true,method: :get) do |form| %>
+  <%= form.label :title,'タイトル検索' %>
+  <%= form.text_field :title,value: params[:title] %>
+  <%= form.label :task_status,'ステータス検索' %>
+  <%= form.select :task_status,Task.task_statuses.keys, selected: params[:task_status],include_blank:"選択して下さい" %>
+  <%= form.submit 'Search' %>
+  <% end %>
+</div>
+<table class="table table-striped">
   <thead>
     <tr>
-      <th>Task name</th>
-      <th>Task detail</th>
-      <th>Task deadline</th>
-      <th>Task progress</th>
-      <th>Task priority</th>
-      <th colspan="3"></th>
+      <th>タイトル</th>
+      <th>期限</th>
+      <th>ステータス</th>
+      <th>優先順位</th>
     </tr>
   </thead>
-
-  <tbody>   
+  <tbody>
     <% @tasks.each do |task| %>
-      <tr class = "task_row">
-        <td><%= task.name %></td>
-        <td><%= task.detail %></td>
-        <td><%= task.deadline %></td>
-        <td><%= task.progress %></td>
-        <td><%= task.priority %></td>
-        <td><%= link_to 'Show', task %></td>
-        <td><%= link_to 'Edit', edit_task_path(task) %></td>
-        <td><%= link_to 'Destroy', task, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+    <tr>
+      <td><%= task.title %></td>
+      <td><%= task.task_limit_on %></td>
+      <td><%= task.task_status %></td>
+      <td><%= task.priority %></td>
+      <td><%= link_to '詳細を確認する', task_path(task.id), class: "btn btn-outline-primary" %></td>
+      <td><%= link_to "タスクを編集する", edit_task_path(task.id), class: "btn btn-outline-warning", data: { confirm: '本当に編集していいですか？' } %></td>
+      <td><%= link_to 'タスクを削除する', task_path(task.id), class: "btn btn-outline-danger", method: :delete ,data: { confirm: '本当に削除していいですか？' } %></td>
+    </tr>
     <% end %>
   </tbody>
 </table>
+<%= link_to "終了期限でソートする", tasks_path(sort_expired: "true"), class: "btn btn-primary btn-lg" %>
+<%= link_to "優先順位が高い順にソートする", tasks_path(sort_priority: "true"), class: "btn btn-primary btn-lg" %>
 
-<div class = "sorting_and_paginate">
-  <br>
-  <%= link_to "終了期限でソートする", tasks_path(sort_expired: "true") %>
-  <br>
-  <%= link_to "優先度でソートする", tasks_path(sort_priority: "true") %>
-
-  <br>
-  <%= paginate @tasks %>
-</div>
+<br>
+<%= link_to 'タスクを作成する', new_task_path, class: "btn btn-dark btn-lg" %>
+<%= link_to '管理者画面/ユーザー一覧へ', admin_users_path, class: "btn btn-dark btn-lg" %>
+<%= paginate @tasks %>
