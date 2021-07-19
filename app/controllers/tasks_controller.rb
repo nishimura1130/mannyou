@@ -1,3 +1,4 @@
+
 class TasksController < ApplicationController
   before_action :set_task, only: [:show, :edit, :update, :destroy]
 
@@ -15,6 +16,8 @@ class TasksController < ApplicationController
     else
       @tasks = current_user.tasks.order(id: "DESC").page(params[:page]).per(5)
     end
+
+    @tasks = @tasks.joins(:labels).where(labels: { id: params[:label_id] }) if params[:label_id].present?
   end
 
   def new
@@ -63,7 +66,7 @@ class TasksController < ApplicationController
 
   private
   def task_params
-    params.require(:task).permit(:title, :task_limit_on, :task_status, :priority)
+    params.require(:task).permit(:title, :task_limit_on, :task_status, :priority, { label_ids: [] })
   end
 
   def set_task
