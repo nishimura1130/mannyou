@@ -194,6 +194,7 @@ RSpec.describe 'ユーザ登録・ログイン・ログアウト機能', type: :
       @user = FactoryBot.create(:user)
       @admin_user = FactoryBot.create(:admin_user)
       user_login
+      sleep 0.5
     end
 
     context 'ログインしていない状態でユーザーのデータが登録されている場合' do
@@ -211,7 +212,7 @@ RSpec.describe 'ユーザ登録・ログイン・ログアウト機能', type: :
     context '一般ユーザーでログインしている状態' do
       it '自分の詳細画面に飛べること' do
         click_link 'マイページ'
-        sleep 1
+        sleep 0.5
         expect(page).to have_content 'テストのページ'
       end
 
@@ -238,8 +239,8 @@ RSpec.describe 'ユーザ登録・ログイン・ログアウト機能', type: :
     context '一般ユーザーでログインしている時' do
       it '一般ユーザーは管理画面にアクセスできない' do
         user_login
-
         visit admin_users_path
+        sleep 0.5
         expect(current_path).to eq root_path
       end
     end
@@ -247,8 +248,9 @@ RSpec.describe 'ユーザ登録・ログイン・ログアウト機能', type: :
     context '管理者でログインしている時' do
       before do
         admin_user_login
-        sleep 1
+        sleep 0.5
         click_link '管理者画面/ユーザー一覧へ'
+        sleep 0.5
       end
 
       it '管理者は管理画面にアクセスできる' do
@@ -256,45 +258,48 @@ RSpec.describe 'ユーザ登録・ログイン・ログアウト機能', type: :
       end
 
       it '管理者はユーザーを新規登録できる' do
-        sleep 1
-        click_link '新規ユーザー登録'
-
+        sleep 0.5
+        click_link 'admin-users_index-new_user_link'
+        sleep 0.5
         fill_in 'user[name]', with: 'test2'
         fill_in 'user[email]', with: 'test2@test2.com'
         fill_in 'user[password]', with: '22222222'
         fill_in 'user[password_confirmation]', with: '22222222'
         click_on 'アカウント作成'
-
+        sleep 0.5
         visit admin_users_path
+        sleep 0.5
         expect(page).to have_content 'test2'
       end
 
       it '管理者はユーザー詳細画面にアクセスできる' do
-        sleep 1
         click_link 'ユーザー情報詳細', href: admin_user_path(@user.id)
+        sleep 0.5
         expect(current_path).to eq admin_user_path(@user.id)
         expect(page).to have_content 'test@test.com'
       end
 
       it '管理者はユーザーの編集画面からユーザー情報を編集できる' do
-        sleep 1
+        sleep 0.5
         visit admin_users_path
+        sleep 0.5
         click_link 'ユーザー情報編集', href: edit_admin_user_path(@user.id)
-
+        sleep 0.5
         fill_in 'user[name]', with: 'test3'
         fill_in 'user[email]', with: 'test3@test3.com'
         fill_in 'user[password]', with: '33333333'
         fill_in 'user[password_confirmation]', with: '33333333'
         click_button '実行'
-
+        sleep 0.5
         expect(page).to have_content 'test3'
       end
 
       it '管理者はユーザの削除をできること' do
-        sleep 1
+        sleep 0.5
         click_link 'ユーザー情報削除', href: admin_user_path(@user.id)
+        sleep 0.5
         page.driver.browser.switch_to.alert.accept
-
+        sleep 0.5
         expect(page).to have_content 'ユーザー「テスト」を削除しました。'
       end
     end
